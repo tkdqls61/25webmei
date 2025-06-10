@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>메이의 집 - 게임</title>
+  <link rel="stylesheet" href="../css/mystyle.css">
+  <link rel="stylesheet" href="../css/game.css">
+</head>
+<body>
+<div class="header">🐾 <span>메이의 집</span> 🐾</div>
+
+<ul>
+  <li><a href="../main.html">홈</a></li>
+  <li><a href="./introduce.html">소개</a></li>
+  <li><a href="./life.html">묘생</a></li>
+  <li><a href="./gallery.html">갤러리</a></li>
+  <li><a href="./cuteness.html">귀여움</a></li>
+  <li><a href="./game.html">게임</a></li>
+  <li class="dropdown">
+      <a href="#" class="dropbtn">Dropdown</a>
+      <div class="dropdown-content" >
+        <a href="http://www.google.com">구글</a>
+        <a href="http://www.youtube.com">유튜브</a>
+        <a href="http://www.naver.com">네이버</a>
+      </div>
+</ul>
+
+<article>
+  <h2>🎮 메이의 게임</h2>
+  <p>이 페이지는 메이의 게임에 대한 정보를 담고 있습니다.</p>
+</article>
+
+<div class="game-title">🎮 메이를 피해 클릭하세요! (지뢰찾기 스타일)</div>
+  <button class="reset-btn" onclick="initGame()">🔄 다시 시작</button>
+  <div class="grid" id="grid"></div>
+  <div class="result" id="result"></div>
+
+  <script>
+    const gridSize = 8;
+    const totalCells = gridSize * gridSize;
+    const totalMines = 10;
+    const grid = document.getElementById('grid');
+    const result = document.getElementById('result');
+    let mines, revealedCount, gameOver;
+
+    function getIndex(row, col) {
+      return row * gridSize + col;
+    }
+
+    function countNearbyMines(index) {
+      const row = Math.floor(index / gridSize);
+      const col = index % gridSize;
+      let count = 0;
+
+      for (let dr = -1; dr <= 1; dr++) {
+        for (let dc = -1; dc <= 1; dc++) {
+          if (dr === 0 && dc === 0) continue;
+          const newRow = row + dr;
+          const newCol = col + dc;
+          if (
+            newRow >= 0 && newRow < gridSize &&
+            newCol >= 0 && newCol < gridSize
+          ) {
+            const newIndex = getIndex(newRow, newCol);
+            if (mines.has(newIndex)) count++;
+          }
+        }
+      }
+
+      return count;
+    }
+
+    function initGame() {
+      grid.innerHTML = '';
+      result.textContent = '';
+      mines = new Set();
+      revealedCount = 0;
+      gameOver = false;
+
+      while (mines.size < totalMines) {
+        mines.add(Math.floor(Math.random() * totalCells));
+      }
+
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+
+        cell.addEventListener('click', function () {
+          if (gameOver || cell.classList.contains('revealed')) return;
+
+          cell.classList.add('revealed');
+
+          if (mines.has(i)) {
+            cell.textContent = '🐱';
+            cell.style.backgroundColor = '#ff9999';
+            result.textContent = '앗! 메이를 클릭했어요! 게임 오버 😿';
+            gameOver = true;
+          } else {
+            const nearby = countNearbyMines(i);
+            cell.textContent = nearby > 0 ? nearby : '✔️';
+            revealedCount++;
+            if (revealedCount === totalCells - totalMines) {
+              result.textContent = '🎉 메이를 피해 모두 성공했어요!';
+              gameOver = true;
+            }
+          }
+        });
+
+        grid.appendChild(cell);
+      }
+    }
+
+    initGame();
+  </script>
+
+<aside>
+  <img src="../image/2.jpg" alt="메이 이미지" style="max-width: 100%; border-radius: 10px;">
+</aside>
+<div style="clear: both; padding: 20px; text-align: center; color: #777; background: #f9f9f9">
+  메이의 집
+</div>
+</body>
+</html>
